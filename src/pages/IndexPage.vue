@@ -62,7 +62,7 @@ export default defineComponent({
       this.current_text = this.text
       this.text = this.current_text + ' - ' + this.inputValue
       // Effectuez la requête POST
-      axios.post('http://localhost:8000', '{"request": "' + this.inputValue + '"}')
+      axios.post('http://localhost:8000', '{"request": "' + this.inputValue.replace(/"/g, '\\"') + '"}')
         .then((response) => {
           this.response = response.data
           console.log('response:', this.response)

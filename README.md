@@ -1,6 +1,6 @@
 # Llama Client (llama-client)
 
-A client app to request llama
+This is a simple client app to request llama server running on local.
 
 ## Install the dependencies
 ```bash

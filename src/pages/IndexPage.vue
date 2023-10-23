@@ -1,13 +1,17 @@
 <template>
   <div class="q-pa-md">
     <q-input
-          v-model="text"
-          outlined
-          label="Response"
-          autogrow
-          readonly
-          class="text-field"
-        />
+      v-model="text"
+      outlined
+      autogrow
+      readonly
+      class="text-field"
+    >
+      <template v-slot:append>
+        <q-btn dense flat color="negative" icon="clear" @click="handleClearButtonClick" />
+        <q-btn class="icon" dense flat color="primary" icon="img:src/assets/copy.svg" @click="copyToClipboard" />
+      </template>
+    </q-input>
 
     <div class="q-gutter-md">
       <q-input
@@ -16,9 +20,10 @@
         dense
         placeholder="Send a message"
         hint="Write here your message to send to llama chat"
+        @keyup.enter="handleButtonClick"
       >
-        <template v-slot:after>
-          <q-btn flat color="primary" icon="send" @click="handleButtonClick" />
+        <template v-slot:append>
+          <q-btn dense flat color="primary" icon="send" @click="handleButtonClick" />
         </template>
       </q-input>
     </div>
@@ -27,15 +32,17 @@
 
 <style>
 .text-field {
-  flex: 1;
-  height: 100%;
   margin-bottom: 50px;
+}
+.icon {
+  color: #1976D2;
 }
 </style>
 
 <script>
 import axios from 'axios'
-import { defineComponent } from 'vue'
+import { copyToClipboard } from 'quasar'
+import { defineComponent, ref } from 'vue'
 
 export default defineComponent({
   name: 'IndexPage',
@@ -43,7 +50,8 @@ export default defineComponent({
   data () {
     return {
       inputValue: '',
-      text: ''
+      text: ref(''),
+      current_text: ''
     }
   },
 
@@ -51,16 +59,30 @@ export default defineComponent({
     handleButtonClick () {
       // Add code here to handle the button click event
       console.log('Input Value:', this.inputValue)
+      this.current_text = this.text
+      this.text = this.current_text + ' - ' + this.inputValue
       // Effectuez la requête POST
       axios.post('http://localhost:8000', '{"request": "' + this.inputValue + '"}')
         .then((response) => {
           this.response = response.data
           console.log('response:', this.response)
-          this.text = this.response.response
+          this.current_text = this.text
+          this.text = this.current_text + '\n' + '  > ' + this.response.response + '\n\n'
         })
         .catch((error) => {
           console.error(error)
         })
+      this.inputValue = ''
+    },
+    handleClearButtonClick () {
+      this.text = ''
+    },
+    copyToClipboard () {
+      copyToClipboard(this.text).then(() => {
+        // success!
+      }).catch(() => {
+        // fail
+      })
     }
   }
 
